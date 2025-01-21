@@ -1,0 +1,30 @@
+# Python Bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+.venv/
+env/
+
+# Log files
+logs/
+*.log
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Poetry or Pipenv dependency lock files
+poetry.lock
+Pipfile.lock
+
+# pytest cache
+.cache/
+
+# Coverage directory
+.coverage/
