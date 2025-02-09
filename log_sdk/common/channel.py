@@ -1,10 +1,15 @@
 from enum import Enum
 
 
-class Channel(str, Enum):
+class Channel(Enum):
+    """
+    Enum representing the source of the log.
+    """
+    SENSOR = "Sensor"
+    SYSTEM = "System"
+    MANUAL_INPUT = "Manual Input"
+    ALERT = "Alert"
 
-    
-    WEB_INTERFACE = "WEB-INTERFACE"
-    MOBILE_INTERFACE = "MOBILE-INTERFACE"
-    API_INTERFACE = "API-INTERFACE"
-    DESKTOP_INTERFACE = "DESKTOP-INTERFACE"
+
+    def __str__(self):
+        return self.value

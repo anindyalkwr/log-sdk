@@ -1,19 +1,18 @@
 from enum import Enum
 
 
-class Action(str, Enum):
+class Action(Enum):
+    """
+    Enum representing actions performed on a machine.
+    """
+    START = "Start"
+    STOP = "Stop"
+    MAINTENANCE = "Maintenance"
+    ERROR_DETECTED = "Error Detected"
+    RESET = "Reset"
+    CALIBRATION = "Calibration"
 
 
-    TRANSACTION = "TRANSACTION"
+    def __str__(self):
+        return self.value
     
-
-class ActionType(str, Enum):
-
-    
-    BIFAST = "BIFAST"
-    SKN = "SKN"
-    RTGS = "RTGS"
-    SWIFT = "SWIFT"
-    ONLINE_TRANSFER = "ONLINE-TRANSFER"
-    PAYMENT_PURCHASE = "PAYMENT/PURCHASE"
-    QRIS = "QRIS"

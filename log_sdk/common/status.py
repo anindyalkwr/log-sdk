@@ -1,10 +1,17 @@
 from enum import Enum
 
 
-class Status(str, Enum):
+class Status(Enum):
+    """
+    Enum representing machine or sensor status.
+    """
+    NORMAL = "Normal"
+    WARNING = "Warning"
+    CRITICAL = "Critical"
+    FAULT = "Fault"
+    OFFLINE = "Offline"
 
-    
-    OK = "OK"
-    FAILED = "FAILED"
-    PENDING = "PENDING"
+
+    def __str__(self):
+        return self.value
     

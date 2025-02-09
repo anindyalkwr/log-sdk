@@ -1,8 +1,23 @@
 from enum import Enum
 
 
-class LogType(str, Enum):
+class SensorType(Enum):
+    """
+    Enum representing different types of sensors in industrial manufacturing.
+    """
+    VIBRATION = "Vibration Sensor"
+    TEMPERATURE = "Temperature Sensor"
+    PRESSURE = "Pressure Sensor"
+    HUMIDITY = "Humidity Sensor"
+    FLOW = "Flow Sensor"
+    CURRENT = "Current Sensor"
+    GAS = "Gas Sensor"
+    SPEED = "Speed Sensor"
+    TORQUE = "Torque Sensor"
+    LIGHT = "Light Sensor"
+    PH = "pH Sensor"
 
-    
-    LOG_TYPE_APM = "APM"
+
+    def __str__(self):
+        return self.value
     
