@@ -69,6 +69,7 @@ class LoggerConfig:
         logger.addHandler(handler)
 
         return logger
+    
 
     def _calculate_time_difference(self) -> float:
         """
