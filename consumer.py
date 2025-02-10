@@ -20,7 +20,7 @@ try:
         if msg is None:
             continue
         if msg.error():
-            print(f"⚠️ Error: {msg.error()}")
+            print(f"Error: {msg.error()}")
             continue
 
         print(f"Received Message: {msg.value().decode('utf-8')}")

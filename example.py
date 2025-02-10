@@ -76,4 +76,4 @@ logger.log_humidity(
     status=Status.NORMAL
 )
 
-print("✅ Example logging complete. Check ./logs for the log file.")
+print("Example logging complete. Check ./logs for the log file.")
