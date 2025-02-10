@@ -14,7 +14,7 @@ The **Log SDK** is designed for structured logging of sensor data from industria
 ## **Installation**
 To install the SDK:
 ```bash
-pip install -e .  # Installs the package in editable mode
+pip install git+https://github.com/anindyalkwr/log-sdk.git
 ```
 
 ---
