@@ -15,7 +15,7 @@ setup(
     install_requires=[
        "confluent-kafka>=2.1.0"
     ],
-    url="git+https://github.com/anindyalkwr/log-sdk.git",
+    url="https://github.com/anindyalkwr/log-sdk.git",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
