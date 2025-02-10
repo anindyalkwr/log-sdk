@@ -3,7 +3,7 @@ import os
 import json
 import logging
 from logging.handlers import RotatingFileHandler
-from typing import List, Optional
+from typing import Optional
 
 from confluent_kafka import Producer
 
@@ -60,13 +60,22 @@ class LoggerConfig:
             os.makedirs(directory)
 
         log_file = os.path.join(directory, f"sensor_logs_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.log")
-        handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=12)
-        formatter = logging.Formatter('%(message)s')
 
-        handler.setFormatter(formatter)
+        file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=12)
+        file_formatter = logging.Formatter('%(message)s')
+        file_handler.setFormatter(file_formatter)
+
+        console_handler = logging.StreamHandler()
+        console_formatter = logging.Formatter('%(message)s')
+        console_handler.setFormatter(console_formatter)
+
         logger = logging.getLogger("sensor_logger")
         logger.setLevel(logging.INFO)
-        logger.addHandler(handler)
+
+        logger.handlers.clear()
+
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
 
         return logger
     
@@ -123,8 +132,6 @@ class LoggerConfig:
 
         if self.kafka_enabled:
             self._send_to_kafka(log_data)
-
-        print(log_data)
 
         self.logger.info(json.dumps(log_data, indent=4))
 
