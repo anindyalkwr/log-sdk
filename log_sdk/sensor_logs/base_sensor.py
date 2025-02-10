@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from log_sdk.common.channel import Channel
 from log_sdk.common.data_center import DataCenter
 from log_sdk.common.product import Product
@@ -10,14 +11,13 @@ class BaseSensorLogData:
     """
     Base class for all sensor logs (e.g., Vibration, Temperature, Pressure)
     """
-
     def __init__(
             self,
-            hostname: str,
             sensor_id: str,
-            measurement: float,
             channel: Channel,
             data_center: DataCenter,
+            duration: float,
+            measurement: float,
             product: Product,
             status: Status,
             type: SensorType,
@@ -25,22 +25,23 @@ class BaseSensorLogData:
             metadata=None
         ):
         """
-        :param hostname: Machine or device hostname
         :param sensor_id: Unique identifier for the sensor
-        :param measurement: The actual value recorded by the sensor
         :param channel: The data source channel
         :param data_center: The data center or location of the machine
+        :param duration: The time in seconds for which this measurement was recorded
+        :param measurement: The actual value recorded by the sensor
         :param product: The product line or business unit
-        :param status: Operational status of the machine or sensor
+        :param status: The status of the sensor data
         :param type: Type of sensor used for the measurement.
         :param unit: The unit of the measurement (e.g., Hz, °C, Bar)
         :param metadata: Additional sensor-specific metadata (JSON field)
         """
-        self.hostname = hostname
+        self.timestamp = datetime.now(timezone.utc).isoformat()
         self.sensor_id = sensor_id
-        self.measurement = measurement
         self.channel = channel
         self.data_center = data_center
+        self.duration = duration
+        self.measurement = measurement
         self.product = product
         self.status = status
         self.type = type
@@ -49,4 +50,19 @@ class BaseSensorLogData:
 
 
     def to_dict(self):
-        return self.__dict__
+        """
+        Converts the log object to a dictionary, ensuring Enums are serialized as strings.
+        """
+        return {
+            "timestamp": self.timestamp,
+            "sensor_id": self.sensor_id,
+            "channel": self.channel.value,
+            "data_center": self.data_center.value,
+            "duration": self.duration,
+            "measurement": self.measurement,
+            "product": self.product.value,
+            "status": self.status.value,
+            "type": self.type.value,
+            "unit": self.unit.value,
+            "metadata": self.metadata
+        }

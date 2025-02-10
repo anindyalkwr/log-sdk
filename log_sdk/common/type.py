@@ -10,6 +10,7 @@ class SensorType(Enum):
     PRESSURE = "Pressure Sensor"
     HUMIDITY = "Humidity Sensor"
     FLOW = "Flow Sensor"
+    ELECTRICAL = "Electrical Sensor"
     CURRENT = "Current Sensor"
     GAS = "Gas Sensor"
     SPEED = "Speed Sensor"

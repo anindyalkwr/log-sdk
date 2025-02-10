@@ -8,7 +8,6 @@ class Channel(Enum):
     SENSOR = "Sensor"
     SYSTEM = "System"
     MANUAL_INPUT = "Manual Input"
-    ALERT = "Alert"
 
 
     def __str__(self):

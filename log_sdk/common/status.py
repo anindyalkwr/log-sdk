@@ -9,7 +9,6 @@ class Status(Enum):
     WARNING = "Warning"
     CRITICAL = "Critical"
     FAULT = "Fault"
-    OFFLINE = "Offline"
 
 
     def __str__(self):
