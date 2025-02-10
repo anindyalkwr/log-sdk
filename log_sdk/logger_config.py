@@ -5,7 +5,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from typing import List, Optional
 
-# from confluent_kafka import Producer  # type: ignore
+from confluent_kafka import Producer
 
 # Import Enums and Log Classes
 from log_sdk.common.action import Action
@@ -28,7 +28,7 @@ class LoggerConfig:
     def __init__(
             self, 
             sensor_id: str,
-            KAFKA_BROKERS: List[str],
+            KAFKA_BROKERS: str,
             KAFKA_TOPIC: str,
             kafka_enabled=True,
             log_directory="./logs",
