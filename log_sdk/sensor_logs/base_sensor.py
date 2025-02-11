@@ -36,7 +36,7 @@ class BaseSensorLogData:
         :param unit: The unit of the measurement (e.g., Hz, °C, Bar)
         :param metadata: Additional sensor-specific metadata (JSON field)
         """
-        self.timestamp = datetime.now(timezone.utc).isoformat()
+        self.timestamp = datetime.now(timezone.utc).astimezone().replace(tzinfo=None).isoformat()
         self.sensor_id = sensor_id
         self.channel = channel
         self.data_center = data_center
