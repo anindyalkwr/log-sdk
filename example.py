@@ -8,7 +8,7 @@ from log_sdk.common.status import Status
 
 logger = LoggerConfig(
     sensor_id="sensor-1234",
-    KAFKA_BROKERS="localhost:9092",
+    KAFKA_BOOTSTRAP_SERVERS="localhost:9092",
     KAFKA_TOPIC="sensor_logs",
     kafka_enabled=True,
     log_directory="./logs"

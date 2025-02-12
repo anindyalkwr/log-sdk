@@ -28,7 +28,7 @@ class LoggerConfig:
     def __init__(
             self, 
             sensor_id: str,
-            KAFKA_BROKERS: str,
+            KAFKA_BOOTSTRAP_SERVERS: str,
             KAFKA_TOPIC: str,
             kafka_enabled=True,
             log_directory="./logs",
@@ -40,7 +40,7 @@ class LoggerConfig:
         :param log_directory: Directory for local log backups.
         """
         self.sensor_id = sensor_id
-        self.KAFKA_BROKERS = KAFKA_BROKERS
+        self.KAFKA_BOOTSTRAP_SERVERS = KAFKA_BOOTSTRAP_SERVERS
         self.KAFKA_TOPIC = KAFKA_TOPIC
         self.kafka_enabled = kafka_enabled
         self.logger = self._init_log_file(log_directory)
@@ -48,7 +48,7 @@ class LoggerConfig:
         self.status_timestamp = None
 
         if self.kafka_enabled:
-            self.producer = Producer({'bootstrap.servers': self.KAFKA_BROKERS})
+            self.producer = Producer({'bootstrap.servers': self.KAFKA_BOOTSTRAP_SERVERS})
 
 
     @staticmethod

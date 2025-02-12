@@ -99,7 +99,7 @@ from log_sdk.logger_config import LoggerConfig
 
 logger = LoggerConfig(
     sensor_id="sensor-001",
-    KAFKA_BROKERS=["localhost:9092"],
+    KAFKA_BOOTSTRAP_SERVERS="localhost:9092",
     KAFKA_TOPIC="sensor_logs",
     kafka_enabled=False,  # Logs will be saved locally
     log_directory="./logs"
@@ -188,7 +188,7 @@ If `kafka_enabled=True`, logs are streamed to Kafka:
 ```python
 logger = LoggerConfig(
     sensor_id="sensor-001",
-    KAFKA_BROKERS=["kafka1:9092", "kafka2:9093"],
+    KAFKA_BOOTSTRAP_SERVERS="kafka1:9092", "kafka2:9093",
     KAFKA_TOPIC="machine_logs",
     kafka_enabled=True
 )
