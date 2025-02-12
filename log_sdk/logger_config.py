@@ -44,7 +44,7 @@ class LoggerConfig:
         self.KAFKA_TOPIC = KAFKA_TOPIC
         self.kafka_enabled = kafka_enabled
         self.logger = self._init_log_file(log_directory)
-        self.device_status = None
+        self.machine_status = None
         self.status_timestamp = None
 
         if self.kafka_enabled:
@@ -142,9 +142,10 @@ class LoggerConfig:
 
         :param action: The new machine status (e.g., Start, Stop, Maintenance, Calibration).
         """
-        self.machine_status = action
-        self.status_timestamp = datetime.now(timezone.utc)
-        self.logger.info(f"Machine status updated: {self.machine_status.value} at {self.status_timestamp}")
+        if self.machine_status != action:
+            self.machine_status = action
+            self.status_timestamp = datetime.now(timezone.utc)
+            self.logger.info(f"Machine status updated: {self.machine_status.value} at {self.status_timestamp}")
 
 
     def log_electrical(
