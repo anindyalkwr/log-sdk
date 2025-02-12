@@ -65,17 +65,12 @@ class LoggerConfig:
         file_formatter = logging.Formatter('%(message)s')
         file_handler.setFormatter(file_formatter)
 
-        console_handler = logging.StreamHandler()
-        console_formatter = logging.Formatter('%(message)s')
-        console_handler.setFormatter(console_formatter)
-
         logger = logging.getLogger("sensor_logger")
         logger.setLevel(logging.INFO)
 
         logger.handlers.clear()
 
         logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
 
         return logger
     
