@@ -1,11 +1,12 @@
-from datetime import datetime, timezone
-import os
-import json
-import logging
 from logging.handlers import RotatingFileHandler
 from typing import Optional
+from datetime import datetime, timezone
 
-from confluent_kafka import Producer
+import json
+import logging
+import os
+
+from fogverse import Producer
 
 # Import Enums and Log Classes
 from log_sdk.common.action import Action
@@ -48,7 +49,7 @@ class LoggerConfig:
         self.status_timestamp = None
 
         if self.kafka_enabled:
-            self.producer = Producer({'bootstrap.servers': self.KAFKA_BOOTSTRAP_SERVERS})
+            self.producer = Producer()
 
 
     @staticmethod
@@ -82,7 +83,8 @@ class LoggerConfig:
         :return: The difference in seconds.
         """
         if self.status_timestamp is None:
-            return 0.0  # If no previous status, return 0 uptime/downtime
+            return 0.0 
+            
         return (datetime.now(timezone.utc) - self.status_timestamp).total_seconds()
     
     
@@ -107,18 +109,18 @@ class LoggerConfig:
         return metadata
     
 
-    def _send_to_kafka(self, log_data):
+    async def _send_to_kafka(self, log_data):
         """
         Sends log data to Kafka.
         """
         try:
-            self.producer.produce(self.KAFKA_TOPIC, value=json.dumps(log_data))
-            self.producer.flush()
+            await self.producer._send(json.dumps(log_data).encode('utf-8'), topic=self.KAFKA_TOPIC)
+            self.logger.info(f"Message sent succesfully")
         except Exception as e:
             self.logger.error(f"Kafka Error: {str(e)}")
 
 
-    def _log(self, log_object: BaseSensorLogData):
+    async def _log(self, log_object: BaseSensorLogData):
         """
         Logs data to Kafka and optionally to a file.
         :param log_object: A log instance (BaseSensorLog, VibrationLog, TemperatureLog, etc.)
@@ -126,7 +128,7 @@ class LoggerConfig:
         log_data = log_object.to_dict()
 
         if self.kafka_enabled:
-            self._send_to_kafka(log_data)
+            await self._send_to_kafka(log_data)
 
         self.logger.info(json.dumps(log_data, indent=4))
 
@@ -143,7 +145,7 @@ class LoggerConfig:
             self.logger.info(f"Machine status updated: {self.machine_status.value} at {self.status_timestamp}")
 
 
-    def log_electrical(
+    async def log_electrical(
             self, 
             channel: Channel,
             data_center: DataCenter,
@@ -168,9 +170,9 @@ class LoggerConfig:
             status = status,
             metadata = metadata,
         )
-        self._log(log)
+        await self._log(log)
 
-    def log_humidity(
+    async def log_humidity(
             self, 
             channel: Channel,
             data_center: DataCenter,
@@ -185,7 +187,6 @@ class LoggerConfig:
         """
         metadata = self._add_machine_metadata(metadata)
 
-
         log = HumidityLogData(
             sensor_id = self.sensor_id,
             measurement = measurement,
@@ -196,10 +197,10 @@ class LoggerConfig:
             status = status,
             metadata = metadata,
         )
-        self._log(log)
+        await self._log(log)
 
 
-    def log_pressure(
+    async def log_pressure(
             self, 
             channel: Channel,
             data_center: DataCenter,
@@ -224,10 +225,10 @@ class LoggerConfig:
             status = status,
             metadata = metadata,
         )
-        self._log(log)
+        await self._log(log)
 
 
-    def log_temperature(
+    async def log_temperature(
             self, 
             channel: Channel,
             data_center: DataCenter,
@@ -252,10 +253,10 @@ class LoggerConfig:
             status = status,
             metadata = metadata,
         )
-        self._log(log)
+        await self._log(log)
 
 
-    def log_vibration(
+    async def log_vibration(
             self, 
             channel: Channel,
             data_center: DataCenter,
@@ -280,4 +281,20 @@ class LoggerConfig:
             status = status,
             metadata = metadata,
         )
-        self._log(log)
+        await self._log(log)
+
+
+    async def initialize(self):
+        """
+        Initialize the Kafka producer.
+        """
+        if self.kafka_enabled:
+            await self.producer.start_producer()
+
+
+    async def close(self):
+        """
+        Close the Kafka producer.
+        """
+        if self.kafka_enabled:
+            await self.producer.close_producer()

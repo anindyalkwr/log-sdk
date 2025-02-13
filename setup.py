@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
-       "confluent-kafka>=2.1.0"
+       "git+https://github.com/FXDROS/fogverse.git"
     ],
     url="https://github.com/anindyalkwr/log-sdk.git",
     classifiers=[
