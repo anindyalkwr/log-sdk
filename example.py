@@ -1,5 +1,6 @@
 import asyncio
 import time
+
 from log_sdk.logger_config import LoggerConfig
 from log_sdk.common.action import Action
 from log_sdk.common.channel import Channel
@@ -10,6 +11,8 @@ from log_sdk.common.status import Status
 async def main():
     logger = LoggerConfig(
         sensor_id="sensor-1234",
+        # Due to the current configuration of Fogverse Producer, Kafka bootstrap servers and topic are not used
+        # since the values are directly loaded from environment variables.
         KAFKA_BOOTSTRAP_SERVERS="localhost:9094",
         KAFKA_TOPIC="sensor_logs",
         kafka_enabled=True,

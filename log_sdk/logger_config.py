@@ -1,5 +1,5 @@
 from logging.handlers import RotatingFileHandler
-from typing import Optional
+from typing import Optional, Type
 from datetime import datetime, timezone
 
 import json
@@ -37,12 +37,19 @@ class LoggerConfig:
         """
         Initializes the logger.
 
-        :param kafka_enabled: Whether to send logs to Kafka.
-        :param log_directory: Directory for local log backups.
+        :param sensor_id: Unique identifier for the sensor.
+        :param KAFKA_BOOTSTRAP_SERVERS: Kafka bootstrap servers.
+        :param KAFKA_TOPIC: Kafka topic to publish logs to.
+        :param kafka_enabled: Boolean flag indicating whether to send logs to Kafka.
+        :param log_directory: Directory path for local log backups.
         """
         self.sensor_id = sensor_id
+
+        # Due to the current configuration of Fogverse Producer, Kafka bootstrap servers and topic are not used
+        # since the values are directly loaded from environment variables.       
         self.KAFKA_BOOTSTRAP_SERVERS = KAFKA_BOOTSTRAP_SERVERS
         self.KAFKA_TOPIC = KAFKA_TOPIC
+
         self.kafka_enabled = kafka_enabled
         self.logger = self._init_log_file(log_directory)
         self.machine_status = None
@@ -115,7 +122,6 @@ class LoggerConfig:
         """
         try:
             await self.producer._send(json.dumps(log_data).encode('utf-8'), topic=self.KAFKA_TOPIC)
-            self.logger.info(f"Message sent succesfully")
         except Exception as e:
             self.logger.error(f"Kafka Error: {str(e)}")
 
@@ -123,6 +129,7 @@ class LoggerConfig:
     async def _log(self, log_object: BaseSensorLogData):
         """
         Logs data to Kafka and optionally to a file.
+        
         :param log_object: A log instance (BaseSensorLog, VibrationLog, TemperatureLog, etc.)
         """
         log_data = log_object.to_dict()
@@ -132,7 +139,119 @@ class LoggerConfig:
 
         self.logger.info(json.dumps(log_data, indent=4))
 
-    
+
+    async def _generic_sensor_log(
+            self,
+            log_cls: Type[BaseSensorLogData],
+            channel: Channel,
+            data_center: DataCenter,
+            duration: float,
+            measurement: float, 
+            product: Product,
+            status: Status,
+            metadata: Optional[dict] = None,
+        ):
+        """
+        A generic method to log sensor data, reducing redundancy across log methods.
+
+        :param log_cls: The log data class to instantiate (e.g., ElectricalLogData).
+        :param channel: The channel of the sensor.
+        :param data_center: The data center.
+        :param duration: Duration of the measurement.
+        :param measurement: The sensor measurement.
+        :param product: The product associated with the measurement.
+        :param status: The status of the sensor.
+        :param metadata: Optional additional metadata.
+        """
+        metadata = self._add_machine_metadata(metadata)
+        log = log_cls(
+            sensor_id=self.sensor_id,
+            measurement=measurement,
+            channel=channel,
+            data_center=data_center,
+            duration=duration,
+            product=product,
+            status=status,
+            metadata=metadata,
+        )
+        await self._log(log)
+
+    async def log_electrical(
+            self, 
+            channel: Channel,
+            data_center: DataCenter,
+            duration: float,
+            measurement: float, 
+            product: Product,
+            status: Status,
+            metadata: Optional[dict] = None
+        ):
+        """
+        Logs electrical sensor data (unit: Ampere).
+        """
+        await self._generic_sensor_log(ElectricalLogData, channel, data_center, duration, measurement, product, status, metadata)
+
+    async def log_humidity(
+            self, 
+            channel: Channel,
+            data_center: DataCenter,
+            duration: float,
+            measurement: float, 
+            product: Product,
+            status: Status,
+            metadata: Optional[dict] = None
+        ):
+        """
+        Logs humidity sensor data (unit: Percent).
+        """
+        await self._generic_sensor_log(HumidityLogData, channel, data_center, duration, measurement, product, status, metadata)
+
+    async def log_pressure(
+            self, 
+            channel: Channel,
+            data_center: DataCenter,
+            duration: float,
+            measurement: float, 
+            product: Product,
+            status: Status,
+            metadata: Optional[dict] = None
+        ):
+        """
+        Logs pressure sensor data (unit: Bar).
+        """
+        await self._generic_sensor_log(PressureLogData, channel, data_center, duration, measurement, product, status, metadata)
+
+    async def log_temperature(
+            self, 
+            channel: Channel,
+            data_center: DataCenter,
+            duration: float,
+            measurement: float, 
+            product: Product,
+            status: Status,
+            metadata: Optional[dict] = None
+        ):
+        """
+        Logs temperature sensor data (unit: °C).
+        """
+        await self._generic_sensor_log(TemperatureLogData, channel, data_center, duration, measurement, product, status, metadata)
+
+    async def log_vibration(
+            self, 
+            channel: Channel,
+            data_center: DataCenter,
+            duration: float,
+            measurement: float, 
+            product: Product,
+            status: Status,
+            metadata: Optional[dict] = None
+        ):
+        """
+        Logs vibration sensor data (unit: Hz).
+        """
+        await self._generic_sensor_log(VibrationLogData, channel, data_center, duration, measurement, product, status, metadata)
+
+        
     def update_machine_status(self, action: Action):
         """
         Updates the machine status and records the timestamp.
@@ -143,145 +262,6 @@ class LoggerConfig:
             self.machine_status = action
             self.status_timestamp = datetime.now(timezone.utc)
             self.logger.info(f"Machine status updated: {self.machine_status.value} at {self.status_timestamp}")
-
-
-    async def log_electrical(
-            self, 
-            channel: Channel,
-            data_center: DataCenter,
-            duration: float,
-            measurement: float, 
-            product: Product,
-            status: Status,
-            metadata=None
-        ):
-        """
-        Logs pressure electrical data (unit: Ampere).
-        """
-        metadata = self._add_machine_metadata(metadata)
-
-        log = ElectricalLogData(
-            sensor_id = self.sensor_id,
-            measurement = measurement,
-            channel = channel,
-            data_center = data_center,
-            duration = duration,
-            product = product,
-            status = status,
-            metadata = metadata,
-        )
-        await self._log(log)
-
-    async def log_humidity(
-            self, 
-            channel: Channel,
-            data_center: DataCenter,
-            duration: float,
-            measurement: float, 
-            product: Product,
-            status: Status,
-            metadata=None
-        ):
-        """
-        Logs humidity sensor data (unit: Percent).
-        """
-        metadata = self._add_machine_metadata(metadata)
-
-        log = HumidityLogData(
-            sensor_id = self.sensor_id,
-            measurement = measurement,
-            channel = channel,
-            data_center = data_center,
-            duration = duration,
-            product = product,
-            status = status,
-            metadata = metadata,
-        )
-        await self._log(log)
-
-
-    async def log_pressure(
-            self, 
-            channel: Channel,
-            data_center: DataCenter,
-            duration: float,
-            measurement: float, 
-            product: Product,
-            status: Status,
-            metadata=None
-        ):
-        """
-        Logs pressure sensor data (unit: Bar).
-        """
-        metadata = self._add_machine_metadata(metadata)
-
-        log = PressureLogData(
-            sensor_id = self.sensor_id,
-            measurement = measurement,
-            channel = channel,
-            data_center = data_center,
-            duration = duration,
-            product = product,
-            status = status,
-            metadata = metadata,
-        )
-        await self._log(log)
-
-
-    async def log_temperature(
-            self, 
-            channel: Channel,
-            data_center: DataCenter,
-            duration: float,
-            measurement: float, 
-            product: Product,
-            status: Status,
-            metadata=None
-        ):
-        """
-        Logs temperature sensor data (unit: °C).
-        """
-        metadata = self._add_machine_metadata(metadata)
-
-        log = TemperatureLogData(
-            sensor_id = self.sensor_id,
-            measurement = measurement,
-            channel = channel,
-            data_center = data_center,
-            duration = duration,
-            product = product,
-            status = status,
-            metadata = metadata,
-        )
-        await self._log(log)
-
-
-    async def log_vibration(
-            self, 
-            channel: Channel,
-            data_center: DataCenter,
-            duration: float,
-            measurement: float, 
-            product: Product,
-            status: Status,
-            metadata=None
-        ):
-        """
-        Logs vibration sensor data (unit: Hz).
-        """
-        metadata = self._add_machine_metadata(metadata)
-
-        log = VibrationLogData(
-            sensor_id = self.sensor_id,
-            measurement = measurement,
-            channel = channel,
-            data_center = data_center,
-            duration = duration,
-            product = product,
-            status = status,
-            metadata = metadata,
-        )
-        await self._log(log)
 
 
     async def initialize(self):
