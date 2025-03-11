@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=[
-       "fogverse @ git+https://github.com/FXDROS/fogverse.git@main#egg=fogverse"
+       "fogverse @ git+https://github.com/naufalweise/fogverse.git@refactoring#egg=fogverse"
     ],
     url="https://github.com/anindyalkwr/log-sdk.git",
     classifiers=[
