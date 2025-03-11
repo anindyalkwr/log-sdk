@@ -6,7 +6,7 @@ import json
 import logging
 import os
 
-from fogverse import Producer
+from fogverse import KafkaProducer
 
 # Import Enums and Log Classes
 from log_sdk.common.action import Action
@@ -56,7 +56,10 @@ class LoggerConfig:
         self.status_timestamp = None
 
         if self.kafka_enabled:
-            self.producer = Producer()
+            self.producer = KafkaProducer(
+                topic= KAFKA_TOPIC,
+                bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS
+            )
 
 
     @staticmethod
@@ -121,7 +124,7 @@ class LoggerConfig:
         Sends log data to Kafka.
         """
         try:
-            await self.producer._send(json.dumps(log_data).encode('utf-8'), topic=self.KAFKA_TOPIC)
+            await self.producer._send(json.dumps(log_data).encode('utf-8'))
         except Exception as e:
             self.logger.error(f"Kafka Error: {str(e)}")
 
@@ -269,7 +272,7 @@ class LoggerConfig:
         Initialize the Kafka producer.
         """
         if self.kafka_enabled:
-            await self.producer.start_producer()
+            await self.producer.start()
 
 
     async def close(self):
@@ -277,4 +280,4 @@ class LoggerConfig:
         Close the Kafka producer.
         """
         if self.kafka_enabled:
-            await self.producer.close_producer()
+            await self.producer.stop()
